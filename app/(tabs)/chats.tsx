@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: 26,
-    marginLeft: Spacing.md,
+    marginRight: Spacing.md,
   },
   chatContent: {
     flex: 1,
@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontSize: Typography.sizes.md,
     fontWeight: Typography.weights.semibold,
+    textAlign: 'right',
   },
   chatTime: {
     color: Colors.textMuted,

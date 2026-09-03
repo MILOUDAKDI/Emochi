@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
 import { CHAT_LIST, FEATURED_CHARACTERS } from '@/constants/data';
@@ -27,23 +27,22 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
+const AI_REPLIES = [
+  '*تنظر إليك بعيون مشرقة*\n\nكلامك يجعلني أشعر بدفء غريب...',
+  '*تضحك بخجل وتبعد نظرها قليلاً*\n\nلم أتوقع أن أسمع هذا منك اليوم...',
+  '*تقترب منك ببطء وتهمس*\n\nأتعلم... كنت أفكر فيك طوال اليوم...',
+  '*تميل على كتفك برفق*\n\nالوقت يمر بسرعة عندما نكون معاً...',
+];
+
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const flatRef = useRef<FlatList>(null);
 
   const chat = CHAT_LIST.find((c) => c.id === id) || CHAT_LIST[0];
-  const character = FEATURED_CHARACTERS.find((c) => c.id === id) || FEATURED_CHARACTERS[1];
-
-  const AI_REPLIES = [
-    '*تنظر إليك بعيون مشرقة*\n\nكلامك يجعلني أشعر بدفء غريب...',
-    '*تضحك بخجل وتبعد نظرها قليلاً*\n\nلم أتوقع أن أسمع هذا منك اليوم...',
-    '*تقترب منك ببطء وتهمس*\n\nأتعلم... كنت أفكر فيك طوال اليوم...',
-    '*تميل على كتفك برفق*\n\nالوقت يمر بسرعة عندما نكون معاً...',
-  ];
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -141,7 +140,7 @@ export default function ChatScreen() {
             maxLength={500}
           />
           <Pressable
-            style={[styles.sendBtn, input.trim() && styles.sendBtnActive]}
+            style={[styles.sendBtn, input.trim() ? styles.sendBtnActive : null]}
             onPress={sendMessage}
           >
             <Feather

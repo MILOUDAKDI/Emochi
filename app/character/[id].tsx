@@ -15,7 +15,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 export default function CharacterDetailScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id: string }>();
   const [saved, setSaved] = useState(false);
 
   const all = [...FEATURED_CHARACTERS, ...TRENDING_CHARACTERS];
@@ -33,7 +33,6 @@ export default function CharacterDetailScreen() {
             transition={300}
           />
           <View style={styles.heroOverlay} />
-          {/* Back button */}
           <Pressable
             style={[styles.backBtn, { top: 12 }]}
             onPress={() => router.back()}
@@ -41,14 +40,13 @@ export default function CharacterDetailScreen() {
           >
             <Feather name="chevron-left" size={24} color="#fff" />
           </Pressable>
-          {/* Save button */}
           <Pressable
             style={[styles.saveBtn, { top: 12 }]}
             onPress={() => setSaved(!saved)}
             hitSlop={8}
           >
             <Feather
-              name={saved ? 'bookmark' : 'bookmark'}
+              name="bookmark"
               size={22}
               color={saved ? Colors.primary : '#fff'}
             />
@@ -58,8 +56,6 @@ export default function CharacterDetailScreen() {
         {/* Info */}
         <View style={styles.infoSection}>
           <Text style={styles.characterName}>{character.name}</Text>
-
-          {/* Stats */}
           <View style={styles.statsRow}>
             <View style={styles.stat}>
               <Feather name="bookmark" size={14} color={Colors.textMuted} />
@@ -70,8 +66,6 @@ export default function CharacterDetailScreen() {
               <Text style={styles.statText}>{character.chats}</Text>
             </View>
           </View>
-
-          {/* Tags */}
           <View style={styles.tagsRow}>
             {character.tags.map((tag) => (
               <View key={tag} style={styles.tagPill}>
@@ -79,8 +73,6 @@ export default function CharacterDetailScreen() {
               </View>
             ))}
           </View>
-
-          {/* Description */}
           <Text style={styles.description}>{character.description}</Text>
         </View>
 

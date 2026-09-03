@@ -1,18 +1,18 @@
 // Powered by OnSpace.AI
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, Pressable,
-  TextInput, FlatList, Dimensions, NativeSyntheticEvent,
-  NativeScrollEvent,
+  TextInput, Dimensions, NativeSyntheticEvent, NativeScrollEvent,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Colors, Typography, Spacing, Radius } from '@/constants/theme';
 import { FEATURED_CHARACTERS, TRENDING_CHARACTERS, Character } from '@/constants/data';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = (SCREEN_WIDTH - Spacing.base * 2 - Spacing.sm) / 2;
 
 const HERO_BANNERS = [
   {
@@ -37,6 +37,47 @@ const HERO_BANNERS = [
 
 const EXPLORE_TABS = ['Following', 'Explore', 'Premium', 'Today'];
 
+const CharacterCardItem = ({ item, onPress }: { item: Character; onPress: () => void }) => (
+  <Pressable style={styles.characterCard} onPress={onPress}>
+    <View style={styles.cardImageWrapper}>
+      <Image
+        source={{ uri: item.imageUrl }}
+        style={styles.cardImage}
+        contentFit="cover"
+        transition={200}
+      />
+      <View style={styles.cardChatBadge}>
+        <Feather name="message-circle" size={11} color="#fff" />
+        <Text style={styles.cardChatCount}>{item.chats}</Text>
+      </View>
+    </View>
+    <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
+    <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
+    <View style={styles.cardTags}>
+      {item.tags.slice(0, 2).map((tag) => (
+        <View key={tag} style={styles.tagPill}>
+          <Text style={styles.tagText}>{tag}</Text>
+        </View>
+      ))}
+    </View>
+  </Pressable>
+);
+
+const renderGrid = (items: Character[], onPress: (id: string) => void) => {
+  const rows: Character[][] = [];
+  for (let i = 0; i < items.length; i += 2) {
+    rows.push(items.slice(i, i + 2));
+  }
+  return rows.map((row, ri) => (
+    <View key={ri} style={styles.gridRow}>
+      {row.map((item) => (
+        <CharacterCardItem key={item.id} item={item} onPress={() => onPress(item.id)} />
+      ))}
+      {row.length === 1 ? <View style={styles.characterCard} /> : null}
+    </View>
+  ));
+};
+
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
@@ -50,35 +91,6 @@ export default function HomeScreen() {
     const idx = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
     setHeroBannerIndex(idx);
   };
-
-  const CharacterCardItem = ({ item }: { item: Character }) => (
-    <Pressable
-      style={styles.characterCard}
-      onPress={() => router.push(`/character/${item.id}`)}
-    >
-      <View style={styles.cardImageWrapper}>
-        <Image
-          source={{ uri: item.imageUrl }}
-          style={styles.cardImage}
-          contentFit="cover"
-          transition={200}
-        />
-        <View style={styles.cardChatBadge}>
-          <Feather name="message-circle" size={11} color="#fff" />
-          <Text style={styles.cardChatCount}>{item.chats}</Text>
-        </View>
-      </View>
-      <Text style={styles.cardName} numberOfLines={1}>{item.name}</Text>
-      <Text style={styles.cardDesc} numberOfLines={2}>{item.description}</Text>
-      <View style={styles.cardTags}>
-        {item.tags.slice(0, 2).map((tag) => (
-          <View key={tag} style={styles.tagPill}>
-            <Text style={styles.tagText}>{tag}</Text>
-          </View>
-        ))}
-      </View>
-    </Pressable>
-  );
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -110,7 +122,9 @@ export default function HomeScreen() {
                 style={styles.genderMenuItem}
                 onPress={() => { setGenderFilter(g); setShowGenderMenu(false); }}
               >
-                <Text style={[styles.genderMenuText, genderFilter === g && { color: Colors.primary }]}>{g}</Text>
+                <Text style={[styles.genderMenuText, genderFilter === g && { color: Colors.primary }]}>
+                  {g}
+                </Text>
               </Pressable>
             ))}
           </View>
@@ -186,15 +200,9 @@ export default function HomeScreen() {
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>الشخصيات المميزة</Text>
         </View>
-        <FlatList
-          data={FEATURED_CHARACTERS}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          scrollEnabled={false}
-          columnWrapperStyle={styles.gridRow}
-          contentContainerStyle={styles.gridContainer}
-          renderItem={({ item }) => <CharacterCardItem item={item} />}
-        />
+        <View style={styles.gridContainer}>
+          {renderGrid(FEATURED_CHARACTERS, (id) => router.push(`/character/${id}`))}
+        </View>
 
         {/* Trending */}
         <View style={styles.sectionHeader}>
@@ -203,23 +211,15 @@ export default function HomeScreen() {
             <Text style={styles.seeAll}>عرض الكل</Text>
           </Pressable>
         </View>
-        <FlatList
-          data={TRENDING_CHARACTERS}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          scrollEnabled={false}
-          columnWrapperStyle={styles.gridRow}
-          contentContainerStyle={styles.gridContainer}
-          renderItem={({ item }) => <CharacterCardItem item={item} />}
-        />
+        <View style={styles.gridContainer}>
+          {renderGrid(TRENDING_CHARACTERS, (id) => router.push(`/character/${id}`))}
+        </View>
 
         <View style={{ height: 24 }} />
       </ScrollView>
     </View>
   );
 }
-
-const CARD_WIDTH = (SCREEN_WIDTH - Spacing.base * 2 - Spacing.sm) / 2;
 
 const styles = StyleSheet.create({
   container: {
@@ -247,7 +247,6 @@ const styles = StyleSheet.create({
     flex: 1,
     color: Colors.textPrimary,
     fontSize: Typography.sizes.base,
-    fontWeight: Typography.weights.regular,
   },
   genderFilter: {
     flexDirection: 'row',
@@ -288,7 +287,6 @@ const styles = StyleSheet.create({
   },
   tabBtn: {
     marginRight: Spacing.lg,
-    paddingBottom: 0,
   },
   tabInner: {
     flexDirection: 'row',
@@ -330,7 +328,6 @@ const styles = StyleSheet.create({
   heroOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(0,0,0,0.45)',
-    backgroundImage: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)',
   },
   heroText: {
     position: 'absolute',
@@ -423,6 +420,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.base,
   },
   gridRow: {
+    flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: Spacing.md,
   },

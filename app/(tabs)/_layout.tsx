@@ -1,8 +1,8 @@
 // Powered by OnSpace.AI
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Platform, View, StyleSheet } from 'react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 
 export default function TabLayout() {
